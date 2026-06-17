@@ -1,0 +1,131 @@
+html,
+body,
+#app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Segoe UI, Arial, sans-serif;
+}
+
+.desktop {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #0d47a1, #1976d2);
+  overflow: hidden;
+}
+
+.desktop-icon {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  width: 90px;
+  color: white;
+  text-align: center;
+  cursor: default;
+  user-select: none;
+}
+
+.icon-box {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+}
+
+.window {
+  position: absolute;
+  top: 80px;
+  left: 160px;
+  width: 900px;
+  height: 560px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.hidden {
+  display: none;
+}
+
+.window-titlebar {
+  height: 42px;
+  background: #f2f2f2;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+}
+
+.window-titlebar button {
+  font-size: 20px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mail-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: calc(100% - 43px);
+}
+
+.mail-list {
+  border-right: 1px solid #ddd;
+  background: #fafafa;
+  padding: 8px;
+}
+
+.mail-item {
+  width: 100%;
+  display: block;
+  text-align: left;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
+
+.mail-item span {
+  display: block;
+  margin-top: 4px;
+  color: #666;
+}
+
+.mail-body {
+  padding: 24px;
+}
+
+.inspectable-link {
+  color: #0645ad;
+  font-weight: 600;
+}
+
+.actions {
+  margin-top: 28px;
+}
+
+.actions button {
+  margin-right: 10px;
+  padding: 8px 16px;
+}
+
+.taskbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44px;
+  background: rgba(20, 20, 20, 0.9);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+}
