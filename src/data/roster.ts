@@ -4,6 +4,7 @@
 // and run `npm run generate:roster`. Do not edit orgs.json directly.
 
 import type { LocaleCode } from "../localization/i18n";
+import { withBase } from "../assetPath";
 
 export const DEPARTMENTS = [
   "Accounting",
@@ -172,6 +173,6 @@ export function applyCompanyTheme(
 ): void {
   target.style.setProperty("--brand-primary", company.colors.primary);
   target.style.setProperty("--brand-secondary", company.colors.secondary);
-  target.style.setProperty("--brand-logo", `url("${company.logo}")`);
-  target.style.setProperty("--brand-wallpaper", `url("${company.wallpaper}")`);
+  target.style.setProperty("--brand-logo", `url("${withBase(company.logo)}")`);
+  target.style.setProperty("--brand-wallpaper", `url("${withBase(company.wallpaper)}")`);
 }

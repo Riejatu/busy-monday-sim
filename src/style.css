@@ -14,9 +14,13 @@
   --brand-light: color-mix(in srgb, var(--brand-primary) 55%, white);
   --brand-hover: color-mix(in srgb, var(--brand-primary) 82%, black);
 
-  /* Overwritten per company at runtime; served from public/, not bundled. */
-  --brand-logo: url("/assets/logos/zorin.svg");
-  --brand-wallpaper: url("/assets/wallpapers/zorin.svg");
+  /*
+   * Overwritten per company at runtime by applyCompanyTheme(); served from public/, not
+   * bundled. CSS can't read Vite's `base`, so this fallback path must be kept in sync
+   * with the `base` in vite.config.ts by hand.
+   */
+  --brand-logo: url("/busy-monday-sim/assets/logos/zorin.svg");
+  --brand-wallpaper: url("/busy-monday-sim/assets/wallpapers/zorin.svg");
 }
 
 html,

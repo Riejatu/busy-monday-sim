@@ -59,6 +59,7 @@ import {
 
 import type { ResolvedConfig, TemperatureUnit } from "./config/settings";
 import { renderAdminPage, renderBackendPage } from "./config/configScreens";
+import { withBase } from "./assetPath";
 import {
   isConsequenceOpen,
   resolveConsequenceContent,
@@ -265,11 +266,13 @@ async function startApp(): Promise<void> {
 function getRoute(): "backend" | "admin" | "simulation" {
   const path = window.location.pathname.replace(/\/+$/, "");
 
-  if (path === "/backend") {
+  // Compare against the trailing segment, not the full path: a non-root deploy (e.g.
+  // GitHub Pages' /<repo>/ project sites) puts these routes at /<repo>/admin, not /admin.
+  if (path.endsWith("/backend")) {
     return "backend";
   }
 
-  if (path === "/admin") {
+  if (path.endsWith("/admin")) {
     return "admin";
   }
 
@@ -987,7 +990,7 @@ function renderMarkVideoScreen(): void {
         <video
           id="mark-video"
           class="mark-video"
-          src="/assets/Mark.mp4"
+          src="${withBase("/assets/Mark.mp4")}"
           aria-label="${escapeHtml(t("markVideo.videoLabel", { coworker: narratorName }))}"
           autoplay
           playsinline
