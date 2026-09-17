@@ -540,7 +540,7 @@ function renderHeroMarkup(company: Company): string {
     <div class="hero-overlay"></div>
 
     <div class="hero-brand">
-      <img class="hero-logo" src="${company.logo}" alt="" />
+      <img class="hero-logo" src="${withBase(company.logo)}" alt="" />
       <div class="hero-company">
         <strong>${escapeHtml(company.name)}</strong>
         <span>${escapeHtml(company.industry)}</span>
@@ -766,7 +766,7 @@ function renderUserConfigScreen(): void {
     <main class="user-config-screen">
       <section class="user-config-card">
         <header class="user-config-header">
-          <img class="user-config-logo" src="${company.logo}" alt="" />
+          <img class="user-config-logo" src="${withBase(company.logo)}" alt="" />
           <div>
             <h1>${t("userConfig.title")}</h1>
             <p>${t("userConfig.intro")}</p>
@@ -1045,7 +1045,7 @@ function renderLoginScreen(): void {
 
       <section class="windows-login-card" aria-label="${escapeHtml(company.name)}">
         <div class="login-company">
-          <img class="login-company-logo" src="${company.logo}" alt="" />
+          <img class="login-company-logo" src="${withBase(company.logo)}" alt="" />
           <span>${escapeHtml(company.name)}</span>
         </div>
 
@@ -1149,7 +1149,7 @@ function renderDesktopScreen(): void {
       <div class="app-window outlook-window hidden" id="email-window" data-window="mail" role="dialog" aria-label="${t("email.windowTitle")}">
         <div class="outlook-titlebar window-titlebar">
           <div class="window-app-title">
-            <img class="window-app-logo" src="${company.logo}" alt="" />
+            <img class="window-app-logo" src="${withBase(company.logo)}" alt="" />
             <span>${t("email.windowTitle")}</span>
           </div>
 
