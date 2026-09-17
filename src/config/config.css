@@ -1,0 +1,514 @@
+/*
+ * Styles for the three configuration surfaces: the learner's preferences screen and
+ * the two operator pages at /backend and /admin.
+ *
+ * Kept out of style.css so the simulation's own styling stays readable. Brand
+ * variables come from style.css :root.
+ */
+
+/* ---------- Preferences link (replaces the inline language selector) ---------- */
+
+.preferences-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.54);
+  color: #e2e8f0;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.preferences-link:hover {
+  border-color: var(--brand-border);
+  background: rgba(2, 6, 23, 0.72);
+}
+
+.preferences-link:focus-visible {
+  outline: 2px solid var(--brand-light);
+  outline-offset: 2px;
+}
+
+.preferences-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.preferences-current {
+  padding-left: 9px;
+  border-left: 1px solid rgba(148, 163, 184, 0.3);
+  color: #94a3b8;
+}
+
+/* ---------- Learner preferences screen ---------- */
+
+.user-config-screen {
+  width: 100vw;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at top left, rgba(72, 114, 204, 0.24), transparent 34%),
+    linear-gradient(135deg, #08111f, #111827 52%, #050914);
+  color: #f8fafc;
+}
+
+.user-config-card {
+  width: min(640px, 100%);
+  padding: 32px 34px 28px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 14px;
+  background: rgba(8, 15, 28, 0.9);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+
+.user-config-header {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.user-config-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+}
+
+.user-config-header h1 {
+  margin: 0 0 6px;
+  font-size: 23px;
+  letter-spacing: -0.01em;
+}
+
+.user-config-header p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.user-config-field {
+  padding: 18px 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.user-config-field > label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.user-config-field select,
+.user-config-field input[type="number"] {
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 7px;
+  background: rgba(2, 6, 23, 0.5);
+  color: #f8fafc;
+  font: inherit;
+  font-size: 14px;
+}
+
+.user-config-field select {
+  width: 100%;
+}
+
+.user-config-field select option {
+  background: #0b1120;
+}
+
+.user-config-field select:focus,
+.user-config-field input:focus {
+  outline: 0;
+  border-color: var(--brand-light);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.user-config-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.user-config-inline input[type="number"] {
+  width: 96px;
+}
+
+.user-config-preview {
+  padding: 4px 10px;
+  border: 1px solid var(--brand-border);
+  border-radius: 999px;
+  background: rgba(2, 6, 23, 0.5);
+  color: #e2e8f0;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.user-config-help {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.user-config-readout {
+  display: grid;
+  gap: 6px;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border-left: 3px solid var(--brand-primary);
+  background: rgba(2, 6, 23, 0.42);
+  font-size: 13px;
+}
+
+.user-config-readout div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.user-config-readout dt {
+  color: #94a3b8;
+}
+
+.user-config-readout dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.user-config-reset {
+  margin-top: 14px;
+  border: 0;
+  background: transparent;
+  color: #93c5fd;
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.user-config-locked {
+  margin: 0;
+  padding: 16px 0 4px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.user-config-actions {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.user-config-actions .user-config-reset {
+  margin-top: 0;
+}
+
+/* Keeps the Back button right-aligned when no reset link is present. */
+.user-config-actions > :only-child {
+  margin-left: auto;
+}
+
+/* ---------- Operator pages: /backend and /admin ---------- */
+
+.config-page {
+  min-height: 100vh;
+  padding: 40px clamp(20px, 6vw, 72px) 64px;
+  box-sizing: border-box;
+  background: #0b1120;
+  color: #e2e8f0;
+}
+
+.config-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+  max-width: 980px;
+  margin: 0 auto 24px;
+}
+
+.config-eyebrow {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #60a5fa;
+}
+
+.config-header h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+
+.config-lede {
+  margin: 0;
+  max-width: 56ch;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #94a3b8;
+}
+
+.config-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.config-nav a {
+  padding: 8px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 999px;
+  color: #cbd5e1;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.config-nav a:hover {
+  border-color: #60a5fa;
+  color: #f8fafc;
+}
+
+.config-nav a.current {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: white;
+}
+
+.config-flash {
+  max-width: 980px;
+  margin: 0 auto;
+  height: 0;
+  padding: 0 14px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: rgba(22, 101, 52, 0.35);
+  color: #bbf7d0;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.config-flash.visible {
+  height: auto;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-color: rgba(74, 222, 128, 0.4);
+  opacity: 1;
+}
+
+.config-card,
+.config-summary {
+  max-width: 980px;
+  margin: 0 auto 20px;
+  padding: 24px 26px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 12px;
+  background: #111a2e;
+}
+
+.config-card h2,
+.config-summary h2 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
+.config-note {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.config-form {
+  display: grid;
+  gap: 20px;
+}
+
+.config-field label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.config-field input[type="number"],
+.config-field select {
+  width: 220px;
+  max-width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 7px;
+  background: #0b1120;
+  color: #f8fafc;
+  font: inherit;
+  font-size: 14px;
+}
+
+.config-field input:disabled,
+.config-field select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.config-field input:focus,
+.config-field select:focus {
+  outline: 0;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.config-help {
+  margin: 7px 0 0;
+  font-size: 12.5px;
+  color: #8494ab;
+}
+
+.config-override-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 7px;
+}
+
+.config-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.config-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #3b82f6;
+}
+
+.config-inherited {
+  font-size: 12px;
+  color: #64748b;
+  font-family: Consolas, monospace;
+}
+
+.config-permission {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.config-permission strong {
+  font-size: 14px;
+}
+
+.config-permission .config-help {
+  margin-top: 4px;
+}
+
+.config-permission input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
+.config-permission.locked {
+  opacity: 0.85;
+}
+
+.config-lock {
+  padding: 4px 10px;
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.16);
+  color: #93c5fd;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.config-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.config-primary,
+.config-secondary {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.config-primary {
+  border: 0;
+  background: #1d4ed8;
+  color: white;
+}
+
+.config-primary:hover {
+  background: #2563eb;
+}
+
+.config-secondary {
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  background: transparent;
+  color: #cbd5e1;
+}
+
+.config-secondary:hover {
+  border-color: #94a3b8;
+  color: #f8fafc;
+}
+
+.config-summary dl {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  font-size: 13.5px;
+}
+
+.config-summary dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.config-summary dt {
+  color: #94a3b8;
+}
+
+.config-summary dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}

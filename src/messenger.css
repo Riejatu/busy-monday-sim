@@ -1,0 +1,363 @@
+/*
+ * The company messenger, styled after Teams.
+ *
+ * It keeps Teams' own purple rather than the company brand colour: a third-party app on a
+ * corporate desktop looks like itself, and a distinct identity helps the learner tell the
+ * apps apart. (The mail window is brand-coloured, which real Outlook is not - worth
+ * reconciling one way or the other at some point.)
+ */
+
+:root {
+  --teams-purple: #5b5fc7;
+  --teams-purple-deep: #444791;
+}
+
+/* ---------- Tray icon ---------- */
+
+.chat-tray-button {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #1f1f1f;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.chat-tray-button:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.chat-tray-button:focus-visible {
+  outline: 2px solid var(--teams-purple);
+  outline-offset: 1px;
+}
+
+/* An unread conversation gets the app's own colour plus a count. */
+.chat-tray-button.has-unread {
+  color: var(--teams-purple);
+}
+
+.chat-tray-badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: #c4314b;
+  color: white;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 15px;
+  text-align: center;
+}
+
+/* ---------- Window ---------- */
+
+.chat-window {
+  position: absolute;
+  right: 40px;
+  bottom: 68px;
+  width: min(420px, calc(100vw - 80px));
+  height: min(520px, calc(100vh - 140px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 9px;
+  background: white;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+}
+
+.chat-titlebar {
+  height: 38px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 14px;
+  background: var(--teams-purple);
+  color: white;
+}
+
+.chat-app-mark {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ---------- Conversation header ---------- */
+
+.chat-thread-head {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 11px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e6e6e6;
+  background: #faf9f8;
+}
+
+.chat-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--teams-purple-deep);
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.chat-thread-identity strong {
+  display: block;
+  font-size: 14px;
+  color: #201f1e;
+}
+
+.chat-thread-identity span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: #605e5c;
+}
+
+/* ---------- The conversation list ---------- */
+
+/*
+ * A tray flyout, positioned and behaving like the Wi-Fi one: it sits above the taskbar,
+ * closes on a click outside, and lists what is outstanding. It is a notification list
+ * rather than a transcript, so it reads newest first.
+ */
+.chat-list {
+  position: absolute;
+  right: 0;
+  bottom: 40px;
+  /*
+   * Above the toast host (70). A toast sliding in over the very list that exists to collect
+   * them reads backwards, and it cut the bottom item off.
+   */
+  z-index: 75;
+  width: 336px;
+  max-height: 420px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(120, 130, 145, 0.4);
+  border-radius: 9px;
+  background: rgba(250, 250, 252, 0.99);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  text-align: left;
+}
+
+.chat-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 8px 11px 14px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+  color: #1f1f1f;
+  font-size: 13.5px;
+}
+
+.chat-list-header button {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #444;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.chat-list-header button:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.chat-list-items {
+  overflow-y: auto;
+}
+
+.chat-list-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat-list-item:hover {
+  background: rgba(91, 95, 199, 0.08);
+}
+
+.chat-list-item:focus-visible {
+  outline: 2px solid var(--teams-purple);
+  outline-offset: -2px;
+}
+
+/* Unread carries the app colour on the edge; resolved fades back. */
+.chat-list-item.is-unread {
+  border-left-color: var(--teams-purple);
+  background: rgba(91, 95, 199, 0.05);
+}
+
+.chat-list-item.is-resolved {
+  opacity: 0.62;
+}
+
+.chat-list-avatar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--teams-purple);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chat-list-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chat-list-name {
+  color: #1f1f1f;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.chat-list-item.is-unread .chat-list-name {
+  font-weight: 700;
+}
+
+/* One line only - the list is a summary, and the thread is one click away. */
+.chat-list-snippet {
+  color: #5c5c66;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-list-meta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+}
+
+.chat-list-time {
+  color: #70707a;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.chat-list-badge {
+  min-width: 17px;
+  padding: 1px 5px;
+  border-radius: 9px;
+  background: var(--teams-purple);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.chat-list-done {
+  color: #1a7f37;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---------- Messages ---------- */
+
+.chat-messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 14px 20px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  background: white;
+}
+
+.chat-bubble {
+  max-width: 88%;
+  padding: 11px 13px;
+  border-radius: 10px;
+  background: #f0f0f5;
+  color: #201f1e;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.chat-bubble.from-learner {
+  justify-self: end;
+  background: #e1dfff;
+}
+
+.chat-bubble-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.chat-bubble-head strong {
+  font-size: 13.5px;
+}
+
+/* The address is where the impersonation shows, so it is legible rather than decorative. */
+.chat-bubble-head code {
+  font-family: Consolas, monospace;
+  font-size: 11.5px;
+  color: #605e5c;
+  word-break: break-all;
+}
+
+.chat-bubble-body p {
+  margin: 0 0 8px;
+}
+
+.chat-bubble-body p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-bubble-time {
+  display: block;
+  margin-top: 7px;
+  font-size: 11px;
+  color: #797775;
+}
+
+/* ---------- Actionable toast ---------- */
+
+.toast.is-actionable {
+  cursor: pointer;
+}
+
+.toast.is-actionable:hover {
+  border-color: var(--teams-purple);
+}

@@ -1,3 +1,24 @@
+/*
+ * Company branding. applyCompanyTheme() in src/data/roster.ts overwrites
+ * --brand-primary / --brand-secondary / --brand-logo at runtime from the selected
+ * company's roster entry; everything else here is derived from those two colors, so
+ * a new company needs no new CSS. Defaults match Zorin Industries.
+ */
+:root {
+  --brand-primary: #0f6cbd;
+  --brand-secondary: #08304f;
+
+  --brand-tint: color-mix(in srgb, var(--brand-primary) 8%, white);
+  --brand-tint-strong: color-mix(in srgb, var(--brand-primary) 16%, white);
+  --brand-border: color-mix(in srgb, var(--brand-primary) 38%, white);
+  --brand-light: color-mix(in srgb, var(--brand-primary) 55%, white);
+  --brand-hover: color-mix(in srgb, var(--brand-primary) 82%, black);
+
+  /* Overwritten per company at runtime; served from public/, not bundled. */
+  --brand-logo: url("/assets/logos/zorin.svg");
+  --brand-wallpaper: url("/assets/wallpapers/zorin.svg");
+}
+
 html,
 body,
 #app {
@@ -7,105 +28,1046 @@ body,
   font-family: Segoe UI, Arial, sans-serif;
 }
 
+button {
+  font-family: inherit;
+}
+
+.personalization-screen {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at top left, rgba(72, 114, 204, 0.28), transparent 34%),
+    linear-gradient(135deg, #08111f, #111827 52%, #050914);
+  color: #f8fafc;
+  overflow: hidden;
+}
+
+.personalization-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
+  pointer-events: none;
+}
+
+.personalization-window {
+  position: relative;
+  width: min(1004px, calc(100vw - 96px));
+  height: min(772px, calc(100vh - 56px));
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(8, 15, 28, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow:
+    0 32px 90px rgba(0, 0, 0, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.personalization-window-controls {
+  height: 100%;
+  display: flex;
+}
+
+.personalization-window-controls button {
+  width: 46px;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 18px;
+  cursor: default;
+}
+
+.personalization-window-controls button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.personalization-content {
+  display: grid;
+  grid-template-columns: 405px 1fr;
+  height: 100%;
+}
+
+/* Previews the company's own desktop wallpaper behind the logo. */
+.personalization-hero {
+  position: relative;
+  overflow: hidden;
+  background-image: var(--brand-wallpaper);
+  background-size: cover;
+  background-position: center;
+}
+
+/* Knocks the wallpaper back so the logo and company name stay legible on top. */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(3, 7, 18, 0.34), rgba(3, 7, 18, 0.72)),
+    radial-gradient(circle at center, transparent, rgba(0, 0, 0, 0.45));
+}
+
+.hero-brand {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  z-index: 1;
+}
+
+.hero-logo {
+  width: 132px;
+  height: 132px;
+  margin: 0 auto;
+  border-radius: 22px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+
+.hero-company {
+  margin-top: 28px;
+  padding: 0 24px;
+}
+
+/* Sized to fit the longest company name in the roster on one or two lines. */
+.hero-company strong {
+  display: block;
+  font-size: 26px;
+  letter-spacing: 3px;
+  line-height: 1.25;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.hero-company span {
+  display: block;
+  margin-top: 10px;
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #cbd5e1;
+}
+
+.personalization-form-panel {
+  padding: 24px 48px 28px;
+  min-height: 0;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.1), transparent 36%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.97));
+  display: flex;
+  flex-direction: column;
+}
+
+.personalization-form-panel h1 {
+  margin: 0 0 14px;
+  font-size: 25px;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+}
+
+.privacy-note,
+.password-note {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 14px;
+  align-items: center;
+  color: #d1d5db;
+}
+
+.privacy-note {
+  margin-bottom: 2px;
+}
+
+.privacy-note p,
+.password-note p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.48;
+}
+
+.privacy-icon,
+.password-note-icon {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(96, 165, 250, 0.55);
+  color: #93c5fd;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(37, 99, 235, 0.12);
+}
+
+.form-divider {
+  height: 1px;
+  background: rgba(148, 163, 184, 0.22);
+  margin: 16px 0 18px;
+}
+
+.personalization-form {
+  display: grid;
+  gap: 13px;
+}
+
+.personalization-form label > span {
+  display: block;
+  font-size: 13px;
+  color: #e5e7eb;
+  margin-bottom: 6px;
+}
+
+.input-shell {
+  height: 42px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(2, 6, 23, 0.42);
+  border-radius: 7px;
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+}
+
+.input-shell:focus-within {
+  border-color: rgba(96, 165, 250, 0.75);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.input-icon {
+  text-align: center;
+  opacity: 0.8;
+}
+
+.input-shell input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #f8fafc;
+  font-size: 14px;
+}
+
+.input-shell input::placeholder {
+  color: #818cf8;
+  opacity: 0.62;
+}
+
+.password-toggle {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: transparent;
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+/* Selects have no trailing button, so the shell drops its third column. */
+.select-shell {
+  grid-template-columns: 42px 1fr;
+}
+
+.select-shell select {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  padding-right: 12px;
+  background: transparent;
+  color: #f8fafc;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* The dropdown list itself renders in the OS palette, not the panel's. */
+.select-shell select option {
+  background: #0b1120;
+  color: #f8fafc;
+}
+
+.profile-summary {
+  display: grid;
+  gap: 6px;
+  padding: 11px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 7px;
+  background: rgba(2, 6, 23, 0.34);
+}
+
+.profile-summary-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.profile-summary-label {
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.profile-summary-value {
+  color: #f1f5f9;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/* Security rating: 1 safe through 4 risky, 0 not yet rated. */
+.profile-summary-value.rating-0 {
+  color: #cbd5e1;
+}
+
+.profile-summary-value.rating-1 {
+  color: #6ee7a8;
+}
+
+.profile-summary-value.rating-2 {
+  color: #bef264;
+}
+
+.profile-summary-value.rating-3 {
+  color: #fcd34d;
+}
+
+.profile-summary-value.rating-4 {
+  color: #fca5a5;
+}
+
+.password-note {
+  grid-template-columns: 36px 1fr;
+  margin-top: 2px;
+  color: #93c5fd;
+}
+
+.password-note-icon {
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+}
+
+.start-simulation-button {
+  margin-top: 2px;
+  height: 48px;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-hover));
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+}
+
+.start-simulation-button:hover {
+  background: linear-gradient(135deg, var(--brand-light), var(--brand-primary));
+}
+
+.start-simulation-button:active {
+  transform: translateY(1px);
+}
+
+
+.setup-screen {
+  width: 100vw;
+  height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(72, 114, 204, 0.24), transparent 34%),
+    linear-gradient(135deg, #08111f, #111827 52%, #050914);
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 48px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.setup-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black, transparent 72%);
+  pointer-events: none;
+}
+
+.setup-card {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 90vw);
+  background: rgba(8, 15, 28, 0.82);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 18px;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.48);
+  padding: 44px;
+  text-align: center;
+  backdrop-filter: blur(18px);
+}
+
+.setup-story-text {
+  font-size: clamp(1.4rem, 2.4vw, 2.15rem);
+  line-height: 1.45;
+  margin: 0 0 32px;
+}
+
+.setup-primary-button,
+.setup-secondary-button {
+  border-radius: 999px;
+  padding: 12px 24px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.setup-primary-button {
+  border: 0;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-hover));
+  color: white;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24);
+}
+
+.setup-secondary-button {
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.setup-primary-button:hover,
+.setup-secondary-button:hover {
+  transform: translateY(-1px);
+}
+
+.mark-video-frame {
+  position: relative;
+  z-index: 1;
+  width: 50vw;
+  max-width: 920px;
+  min-width: 360px;
+  background: black;
+  border: 12px solid black;
+  border-radius: 14px;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
+}
+
+.mark-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: black;
+}
+
+.mark-video-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 800px) {
+  .mark-video-frame {
+    width: 86vw;
+    min-width: 0;
+  }
+
+  .setup-card {
+    padding: 32px 24px;
+  }
+
+  .mark-video-actions {
+    flex-direction: column;
+  }
+}
+
+
 .desktop {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, #0d47a1, #1976d2);
+  background-image: var(--brand-wallpaper);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   overflow: hidden;
+}
+
+/*
+ * Base of the window stacking band; raiseWindow() in main.ts moves windows within it. The
+ * per-window z-index values these replaced meant window order could never change.
+ */
+.app-window {
+  z-index: 10;
+}
+
+/*
+ * Paused badge, top left.
+ *
+ * A white glyph as specified, on a translucent dark disc - white alone would disappear
+ * against a light wallpaper, and the wallpaper is per company so it cannot be relied on to
+ * be dark. Sits above the icons rather than beside them: the desktop icons start at 48px,
+ * and this ends at 44.
+ *
+ * Not a control. The space key is what pauses and resumes; this only reports the state.
+ */
+.time-paused {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: rgba(12, 18, 28, 0.62);
+  backdrop-filter: blur(6px);
+  animation: time-paused-in 200ms ease-out;
+}
+
+@keyframes time-paused-in {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+
+.time-paused-glyph {
+  width: 17px;
+  height: 17px;
+  fill: #fff;
 }
 
 .desktop-icon {
   position: absolute;
-  top: 40px;
-  left: 40px;
-  width: 90px;
+  top: 48px;
+  left: 42px;
+  width: 94px;
   color: white;
   text-align: center;
   cursor: default;
   user-select: none;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 8px 4px;
+  border-radius: 6px;
+}
+
+.desktop-icon:hover,
+.desktop-icon.selected {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
 }
 
 .icon-box {
-  width: 56px;
-  height: 56px;
+  width: 58px;
+  height: 58px;
   margin: 0 auto 8px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-light));
   display: grid;
   place-items: center;
-  font-size: 30px;
+  font-size: 31px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
 }
 
-.window {
+.notes-desktop-icon {
+  top: 150px;
+}
+
+.notes-icon-box {
+  background: linear-gradient(135deg, #f59e0b, #fde68a);
+  color: #3b2f12;
+}
+
+.notes-window {
   position: absolute;
-  top: 80px;
-  left: 160px;
-  width: 900px;
-  height: 560px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  top: 94px;
+  left: 188px;
+  width: min(720px, calc(100vw - 250px));
+  height: min(620px, calc(100vh - 160px));
+  background: #fffdf5;
+  border-radius: 9px;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.25);
 }
 
-.hidden {
-  display: none;
+/*
+ * While a decision is pending, the notes window docks narrow against the left edge so the
+ * learner can read a number and still see the question. Undocked it overlapped the centred
+ * choice card almost completely: the card was down to 15% visible at 1280px wide, which is
+ * how you lose track of a prompt you are supposed to answer.
+ */
+body.choice-pending .notes-window:not([data-moved]) {
+  left: 16px;
+  width: min(430px, 36vw);
 }
+
+/* ---------- Draggable windows ---------- */
 
 .window-titlebar {
-  height: 42px;
-  background: #f2f2f2;
-  border-bottom: 1px solid #ccc;
+  cursor: grab;
+  /* Stops a touch drag from scrolling the page instead of moving the window. */
+  touch-action: none;
+  user-select: none;
+}
+
+/* The window controls sit inside the handle and are not drag targets. */
+.window-titlebar button {
+  cursor: pointer;
+}
+
+body.window-dragging,
+body.window-dragging .window-titlebar {
+  cursor: grabbing;
+}
+
+/*
+ * Nothing should be selecting text or reacting to hover while a window is being dragged -
+ * the pointer is captured by the titlebar, so a stray hover state would just stick.
+ */
+body.window-dragging {
+  user-select: none;
+}
+
+.notes-titlebar {
+  height: 38px;
+  background: #6b5f2a;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px;
+  padding-left: 14px;
 }
 
-.window-titlebar button {
-  font-size: 20px;
+.notes-app-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: #facc15;
+  display: inline-block;
+}
+
+.notes-content {
+  height: calc(100% - 38px);
+  padding: 28px 34px 34px;
+  box-sizing: border-box;
+  overflow: auto;
+  color: #282513;
+  background:
+    linear-gradient(rgba(120, 113, 50, 0.08) 1px, transparent 1px),
+    #fffdf5;
+  background-size: 100% 32px;
+}
+
+.notes-content h1 {
+  margin: 0 0 22px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.notes-reference-list,
+.notes-person-list {
+  display: grid;
+  gap: 12px;
+}
+
+/*
+ * Separates the learner's reference numbers from the cast list. The references sit above
+ * it, because a prompt that says "check your notes" has to be answerable without scrolling.
+ */
+.notes-section-heading {
+  margin: 26px 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #6b5f2a;
+}
+
+.notes-person-card {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(120, 113, 50, 0.22);
+  border-radius: 10px;
+  padding: 13px 16px;
+  box-shadow: 0 5px 14px rgba(60, 53, 20, 0.08);
+}
+
+.notes-person-card h2 {
+  margin: 0 0 5px;
+  font-size: 18px;
+  color: #111827;
+}
+
+.notes-person-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #3f3a24;
+}
+
+.notes-person-card.trusted-reference {
+  border-left: 4px solid var(--brand-primary);
+}
+
+.notes-person-card.executive-reference {
+  border-left: 4px solid #6b5f2a;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.outlook-window {
+  position: absolute;
+  top: 76px;
+  left: 150px;
+  width: min(1120px, calc(100vw - 220px));
+  height: min(650px, calc(100vh - 140px));
+  background: white;
+  border-radius: 9px;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.outlook-titlebar {
+  height: 38px;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 14px;
+}
+
+.window-app-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.window-app-logo {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: block;
+}
+
+.window-controls {
+  height: 100%;
+  display: flex;
+}
+
+.window-controls button {
+  width: 46px;
+  border: 0;
+  color: white;
+  background: transparent;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.window-controls button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.window-controls button:last-child:hover {
+  background: #c42b1c;
+}
+
+.outlook-ribbon {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: #f7f7f7;
+  border-bottom: 1px solid #d7d7d7;
+}
+
+.outlook-ribbon button {
+  border: 1px solid #d0d0d0;
+  background: white;
+  border-radius: 4px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.outlook-ribbon button:hover {
+  background: var(--brand-tint);
+  border-color: var(--brand-border);
+}
+
+.outlook-layout {
+  display: grid;
+  grid-template-columns: 185px 320px 1fr;
+  height: calc(100% - 86px);
+}
+
+.outlook-sidebar {
+  background: #f3f2f1;
+  border-right: 1px solid #d7d7d7;
+  padding: 14px 10px;
+}
+
+/* Whose mailbox this is - the learner, straight from the roster profile. */
+.mailbox-owner {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 8px 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #e1dfdd;
+}
+
+.mailbox-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.mailbox-identity {
+  min-width: 0;
+}
+
+.mailbox-identity strong {
+  display: block;
+  font-size: 13px;
+  color: #201f1e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mailbox-identity span {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #605e5c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mailbox-title {
+  font-size: 12px;
+  color: #605e5c;
+  text-transform: uppercase;
+  margin: 6px 8px 10px;
+  font-weight: 700;
+}
+
+.folder {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
   border: 0;
   background: transparent;
+  padding: 9px 10px;
+  border-radius: 4px;
   cursor: pointer;
-}
-
-.mail-layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  height: calc(100% - 43px);
-}
-
-.mail-list {
-  border-right: 1px solid #ddd;
-  background: #fafafa;
-  padding: 8px;
-}
-
-.mail-item {
-  width: 100%;
-  display: block;
   text-align: left;
-  padding: 12px;
-  margin-bottom: 8px;
-  border: 1px solid #ddd;
+  color: #323130;
+}
+
+.folder:hover,
+.folder.active {
+  background: var(--brand-tint-strong);
+  color: var(--brand-primary);
+}
+
+.message-list {
+  border-right: 1px solid #d7d7d7;
+  background: #faf9f8;
+  overflow: auto;
+}
+
+.message-list-header {
+  height: 54px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 14px;
+  border-bottom: 1px solid #d7d7d7;
+}
+
+.message-list-header span {
+  margin-top: 4px;
+  color: var(--brand-primary);
+  font-size: 13px;
+}
+
+.message-card {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #e1dfdd;
   background: white;
+  text-align: left;
+  padding: 13px 14px;
   cursor: pointer;
 }
 
-.mail-item span {
+.message-card:hover,
+.message-card.selected {
+  background: var(--brand-tint);
+}
+
+.message-card.unread .message-sender,
+.message-card.unread .message-subject {
+  font-weight: 700;
+}
+
+.message-sender {
+  color: #201f1e;
+  margin-bottom: 5px;
+}
+
+.message-subject {
+  color: #323130;
+  margin-bottom: 4px;
+}
+
+.message-preview {
+  color: #605e5c;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.reading-pane {
+  background: white;
+  overflow: auto;
+}
+
+.empty-state {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: #605e5c;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.email-message {
+  padding: 28px 34px;
+}
+
+.email-header {
+  border-bottom: 1px solid #edebe9;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.email-header h1 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #201f1e;
+  margin: 0 0 20px;
+}
+
+.sender-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sender-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.email-meta {
+  margin-top: 3px;
+  color: #605e5c;
+  font-size: 13px;
+}
+
+.email-content {
+  color: #201f1e;
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 720px;
+}
+
+/*
+ * Simulated link. Not an <a>, so every link affordance is supplied here: the
+ * browser gives a <span role="link"> no color, no underline and no pointer cursor.
+ */
+.mail-link {
+  color: #0645ad;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.mail-link:hover {
+  color: #0a4bb0;
+  text-decoration-thickness: 2px;
+}
+
+.mail-link:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.mail-link.visited {
+  color: #6b3fa0;
+}
+
+.link-inspection-hint {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: #f8f8f8;
+  border-left: 4px solid #ffb900;
+  color: #3b3a39;
+  font-size: 13px;
+}
+
+.link-inspection-hint code {
   display: block;
   margin-top: 4px;
-  color: #666;
-}
-
-.mail-body {
-  padding: 24px;
-}
-
-.inspectable-link {
-  color: #0645ad;
-  font-weight: 600;
 }
 
 .actions {
@@ -114,7 +1076,89 @@ body,
 
 .actions button {
   margin-right: 10px;
-  padding: 8px 16px;
+  padding: 9px 16px;
+  border: 1px solid #c8c6c4;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  background: #f3f2f1;
+}
+
+.actions .primary-action {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: white;
+}
+
+.actions .primary-action:hover {
+  background: var(--brand-hover);
+}
+
+/*
+ * Link target preview, bottom-left of the mail window, mirroring how a desktop
+ * client (and a browser) previews a destination on hover. Overlays the layout
+ * rather than occupying a row, so opening it never reflows the message.
+ */
+.mail-status-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  max-width: 75%;
+  padding: 5px 12px 6px;
+  background: #f3f2f1;
+  border-top: 1px solid #d0cecc;
+  border-right: 1px solid #d0cecc;
+  border-top-right-radius: 5px;
+  color: #201f1e;
+  font-size: 12px;
+  font-family: Consolas, "Courier New", monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 110ms ease-out, transform 110ms ease-out;
+  z-index: 5;
+}
+
+.mail-status-bar.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mail-status-bar {
+    transition: none;
+  }
+}
+
+.feedback {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.feedback.correct {
+  background: #e7f6e7;
+  border-color: #8fd18f;
+  color: #0b5a0b;
+}
+
+.feedback.partial {
+  background: #fff8e1;
+  border-color: #e8c56b;
+  color: #6b4c00;
+}
+
+.feedback.risky {
+  background: #fdeceb;
+  border-color: #e6a29c;
+  color: #8b1a12;
 }
 
 .taskbar {
@@ -122,10 +1166,498 @@ body,
   left: 0;
   right: 0;
   bottom: 0;
-  height: 44px;
-  background: rgba(20, 20, 20, 0.9);
-  color: white;
+  height: 48px;
+  background: rgba(245, 248, 252, 0.84);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.18);
+  color: #1f1f1f;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 12px;
+  z-index: 50;
+}
+
+.taskbar-left {
+  justify-self: start;
   display: flex;
   align-items: center;
-  padding-left: 16px;
+}
+
+.taskbar-center {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.taskbar-right {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+}
+
+.taskbar-icon,
+.widgets-button {
+  height: 38px;
+  min-width: 38px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #1f1f1f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  cursor: default;
+  font-size: 18px;
+}
+
+.taskbar-icon:hover,
+.widgets-button:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.taskbar-icon:active,
+.widgets-button:active {
+  transform: scale(0.96);
+}
+
+.taskbar-icon.active {
+  background: rgba(0, 120, 212, 0.14);
+}
+
+.windows-logo {
+  color: #0078d4;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.widgets-button {
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.weather-icon {
+  font-size: 17px;
+}
+
+.system-icon {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.system-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  font-size: 11px;
+  line-height: 1.15;
+  /* Wide enough for the longest locale format, e.g. de-DE "22.06.2026". */
+  min-width: 82px;
+  white-space: nowrap;
+}
+
+.taskbar-app {
+  border: 0;
+  color: white;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+
+.taskbar-app:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.personalization-language-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.personalization-language-row select {
+  min-width: 132px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(2, 6, 23, 0.54);
+  color: #f8fafc;
+  outline: 0;
+}
+
+.personalization-language-row select:focus {
+  border-color: rgba(96, 165, 250, 0.75);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.system-icon-button {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  cursor: default;
+  font-size: 15px;
+}
+
+.system-icon-button:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.wifi-panel {
+  position: absolute;
+  right: 14px;
+  bottom: 58px;
+  width: 360px;
+  background: rgba(248, 249, 252, 0.94);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(180, 190, 205, 0.7);
+  border-radius: 16px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
+  z-index: 60;
+  padding: 16px;
+  color: #1f1f1f;
+}
+
+.wifi-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.wifi-panel-header strong {
+  display: block;
+  font-size: 18px;
+}
+
+.wifi-panel-header span {
+  display: block;
+  color: #5f6368;
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.wifi-panel-header button {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.wifi-panel-header button:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.wifi-list {
+  display: grid;
+  gap: 8px;
+}
+
+.wifi-network {
+  width: 100%;
+  min-height: 72px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: white;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wifi-network:hover,
+.wifi-network.connected {
+  background: var(--brand-tint);
+  border-color: var(--brand-border);
+}
+
+.wifi-main-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wifi-strength {
+  font-size: 20px;
+}
+
+.wifi-network strong {
+  display: block;
+  font-size: 14px;
+  color: #202124;
+}
+
+.wifi-network-status {
+  display: block;
+  font-size: 12px;
+  color: #5f6368;
+  margin-top: 3px;
+}
+
+.wifi-connected-label {
+  color: #0b6a0b;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.windows-login-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-image: var(--brand-wallpaper);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: white;
+}
+
+.login-background-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent 42%),
+    rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(12px);
+}
+
+.windows-login-card {
+  position: relative;
+  z-index: 1;
+  width: min(360px, calc(100vw - 48px));
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.login-company {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.login-company-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+}
+
+.login-avatar {
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  color: #4b5563;
+  display: grid;
+  place-items: center;
+  font-size: 56px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+.windows-login-card h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.login-email {
+  margin: 8px 0 22px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 14px;
+}
+
+.windows-login-form {
+  width: 100%;
+}
+
+.login-password-row {
+  height: 42px;
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+}
+
+.login-password-row input {
+  border: 0;
+  outline: 0;
+  padding: 0 12px;
+  font-size: 15px;
+  background: white;
+  color: #111827;
+}
+
+.login-password-row button {
+  border: 0;
+  border-left: 1px solid #c7c7c7;
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.login-password-row button:hover {
+  background: #e5e7eb;
+}
+
+.login-error {
+  margin: 12px 0 0;
+  color: #ffd7d7;
+  font-size: 13px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.login-secondary-link {
+  margin-top: 26px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.login-secondary-link:hover {
+  color: white;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 1px, 1px);
+  white-space: nowrap;
+  border: 0;
+}
+.choice-confirm-effect {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  --target-x: 50vw;
+  --target-y: 50vh;
+}
+
+.choice-confirm-mark,
+.choice-confirm-echo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 120px;
+  height: 120px;
+  transform-origin: center;
+}
+
+.choice-confirm-mark {
+  animation:
+    choice-confirm-shrink 520ms cubic-bezier(0.18, 0.92, 0.2, 1) forwards,
+    choice-confirm-hold-fade 450ms ease-in 2200ms forwards;
+}
+
+.choice-confirm-echo {
+  opacity: 0;
+  transform:
+    translate(calc(var(--target-x) - 60px), calc(var(--target-y) - 60px))
+    scale(1);
+  animation: choice-confirm-echo 680ms ease-out 520ms forwards;
+}
+
+.choice-confirm-mark svg,
+.choice-confirm-echo svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.choice-confirm-mark circle,
+.choice-confirm-echo circle {
+  fill: rgba(255, 183, 77, 0.2);
+  stroke: rgba(245, 158, 11, 0.96);
+  stroke-width: 9;
+  filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.5));
+}
+
+.choice-confirm-mark path {
+  fill: none;
+  stroke: rgba(255, 243, 166, 0.98);
+  stroke-width: 10;
+  filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.42));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes choice-confirm-shrink {
+  0% {
+    transform:
+      translate(calc(50vw - 60px), calc(50vh - 60px))
+      scale(12);
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  100% {
+    transform:
+      translate(calc(var(--target-x) - 60px), calc(var(--target-y) - 60px))
+      scale(0.42);
+    opacity: 1;
+  }
+}
+
+@keyframes choice-confirm-echo {
+  0% {
+    opacity: 0.72;
+    transform:
+      translate(calc(var(--target-x) - 60px), calc(var(--target-y) - 60px))
+      scale(0.42);
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(calc(var(--target-x) - 60px), calc(var(--target-y) - 60px))
+      scale(1.18);
+  }
+}
+
+@keyframes choice-confirm-hold-fade {
+  to {
+    opacity: 0;
+  }
 }

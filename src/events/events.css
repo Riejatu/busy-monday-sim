@@ -1,0 +1,444 @@
+/*
+ * Event-driven desktop chrome: Windows-style notification toasts, and the operator
+ * catalogue on /backend and /admin.
+ */
+
+/* ---------- Notification toasts ---------- */
+
+.toast-host {
+  position: absolute;
+  right: 12px;
+  /* Clear of the 48px taskbar. */
+  bottom: 60px;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  width: 340px;
+  display: grid;
+  grid-template-columns: 34px 1fr 28px;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 14px 15px;
+  border: 1px solid rgba(120, 130, 145, 0.4);
+  border-radius: 8px;
+  background: rgba(243, 244, 246, 0.97);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.34);
+  color: #1f1f1f;
+  pointer-events: auto;
+  animation: toast-in 220ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+.toast.leaving {
+  animation: toast-out 200ms ease-in forwards;
+}
+
+.toast-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  background: rgba(0, 120, 212, 0.14);
+  color: #0f6cbd;
+}
+
+.toast-warning .toast-icon {
+  background: rgba(202, 138, 4, 0.16);
+  color: #92660a;
+}
+
+.toast-body strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.toast-body p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #44474b;
+}
+
+.toast-close {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #5f6368;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.toast-close:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px) translateY(8px);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast.leaving {
+    animation: none;
+  }
+}
+
+/* A message an event delivered mid-session, briefly highlighted on arrival. */
+.message-card.arrived {
+  animation: message-arrived 1600ms ease-out;
+}
+
+@keyframes message-arrived {
+  0%,
+  40% {
+    background: var(--brand-tint-strong);
+  }
+}
+
+/* ---------- Operator catalogue ---------- */
+
+.catalogue-category {
+  margin: 22px 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: #60a5fa;
+}
+
+.catalogue-event {
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #3b82f6;
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.34);
+}
+
+.catalogue-event.is-disabled {
+  border-left-color: #64748b;
+  opacity: 0.55;
+}
+
+.catalogue-event-head,
+.catalogue-trigger-head {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 12px;
+  align-items: start;
+  cursor: pointer;
+}
+
+.catalogue-event-head input,
+.catalogue-trigger-head input {
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+
+.catalogue-event-head strong {
+  font-size: 14.5px;
+}
+
+.catalogue-event-head code {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.16);
+  color: #94a3b8;
+  font-family: Consolas, monospace;
+  font-size: 11.5px;
+}
+
+.catalogue-trigger {
+  margin: 14px 0 0 32px;
+  padding: 13px 15px;
+  border-left: 2px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0 8px 8px 0;
+  background: rgba(148, 163, 184, 0.07);
+}
+
+.catalogue-trigger-head strong {
+  font-size: 13.5px;
+}
+
+.catalogue-timing {
+  display: block;
+  margin-top: 3px;
+  color: #7dd3fc;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+}
+
+.catalogue-no-trigger {
+  margin: 12px 0 0 32px;
+  font-style: italic;
+}
+
+.trigger-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0 0 32px;
+}
+
+.trigger-param {
+  display: grid;
+  gap: 5px;
+}
+
+.trigger-param span {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.trigger-param input {
+  width: 130px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 6px;
+  background: #0b1120;
+  color: #f8fafc;
+  font: inherit;
+  font-size: 13px;
+}
+
+.trigger-param input:focus {
+  outline: 0;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* ---------- Phishing coverage ---------- */
+
+/*
+ * Amber rather than the catalogue's blue: coverage sits above the event toggles and
+ * overrides them, so it should not read as another row of the same kind of switch.
+ */
+.phishing-class {
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-left: 3px solid #f59e0b;
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.34);
+}
+
+.phishing-class.is-disabled {
+  border-left-color: #64748b;
+  opacity: 0.55;
+}
+
+.phishing-class-head {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 12px;
+  align-items: start;
+  cursor: pointer;
+}
+
+.phishing-class-head input {
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  accent-color: #f59e0b;
+  cursor: pointer;
+}
+
+.phishing-class-head strong {
+  font-size: 14.5px;
+}
+
+.phishing-aka {
+  display: inline-block;
+  margin-left: 8px;
+  color: #fcd34d;
+  font-size: 12px;
+}
+
+.phishing-class-detail {
+  margin: 10px 0 0 32px;
+}
+
+.phishing-vectors {
+  margin: 5px 0 0;
+  padding-left: 20px;
+  color: #94a3b8;
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.phishing-staged {
+  margin-top: 10px;
+  color: #7dd3fc;
+  font-size: 12px;
+}
+
+/* The category an event belongs to, and why an enabled event will not fire. */
+.catalogue-phishing-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 8px;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.14);
+  color: #fcd34d;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.catalogue-silenced {
+  margin-top: 6px;
+  color: #fbbf24;
+  font-style: italic;
+}
+
+/* ---------- Simulated context menu ---------- */
+
+.context-menu {
+  position: fixed;
+  z-index: 200;
+  min-width: 232px;
+  padding: 5px;
+  border: 1px solid rgba(120, 130, 145, 0.42);
+  border-radius: 8px;
+  background: rgba(249, 249, 250, 0.98);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.32);
+  color: #1f1f1f;
+  font-size: 13.5px;
+  user-select: none;
+}
+
+.context-menu-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 20px 1fr 16px;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 5px;
+  cursor: default;
+}
+
+.context-menu-item:hover,
+.context-menu-item:focus-visible {
+  background: rgba(0, 0, 0, 0.07);
+  outline: none;
+}
+
+.context-menu-item[aria-disabled="true"] {
+  color: #9aa0a6;
+}
+
+.context-menu-item[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.context-menu-mark,
+.context-menu-chevron {
+  font-size: 15px;
+  line-height: 1;
+  text-align: center;
+  color: #3b3b3b;
+}
+
+.context-menu-divider {
+  height: 1px;
+  margin: 5px 8px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* Submenus open on hover or focus, like a native menu. */
+.context-submenu {
+  position: absolute;
+  top: -5px;
+  left: 100%;
+  min-width: 190px;
+  padding: 5px;
+  border: 1px solid rgba(120, 130, 145, 0.42);
+  border-radius: 8px;
+  background: rgba(249, 249, 250, 0.98);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.3);
+  display: none;
+}
+
+.context-menu-item:hover > .context-submenu,
+.context-menu-item:focus-within > .context-submenu {
+  display: block;
+}
+
+/* ---------- Desktop icon sizes, set from the wallpaper menu ---------- */
+
+.desktop.icons-small .icon-box {
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+}
+
+.desktop.icons-small .notes-desktop-icon {
+  top: 132px;
+}
+
+.desktop.icons-large .icon-box {
+  width: 74px;
+  height: 74px;
+  font-size: 40px;
+}
+
+.desktop.icons-large .notes-desktop-icon {
+  top: 176px;
+}
+
+/* ---------- Taskbar connection indicator ---------- */
+
+/*
+ * Offline state, drawn like the Windows tray: a globe instead of signal bars, with a
+ * small warning badge. Driven by the connection state itself, so it stays truthful even
+ * if the no-connection prompt has been switched off by an operator.
+ */
+#wifi-button.no-internet {
+  position: relative;
+}
+
+#wifi-button.no-internet::after {
+  content: "!";
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #b45309;
+  color: white;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 11px;
+  text-align: center;
+}
