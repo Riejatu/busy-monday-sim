@@ -679,11 +679,14 @@ function readCatalogue(): Pick<SimulationSettings, "events" | "triggers"> {
 }
 
 function renderNav(current: "backend" | "admin"): string {
+  // Root-relative links (e.g. "/admin") resolve against the domain root, not the
+  // deployed subpath (e.g. GitHub Pages' /busy-monday-sim/) - build off BASE_URL instead.
+  const base = import.meta.env.BASE_URL;
   return `
     <nav class="config-nav">
-      <a href="/backend" class="${current === "backend" ? "current" : ""}">Backend</a>
-      <a href="/admin" class="${current === "admin" ? "current" : ""}">Admin</a>
-      <a href="/">Open simulation</a>
+      <a href="${base}backend" class="${current === "backend" ? "current" : ""}">Backend</a>
+      <a href="${base}admin" class="${current === "admin" ? "current" : ""}">Admin</a>
+      <a href="${base}">Open simulation</a>
     </nav>
   `;
 }
