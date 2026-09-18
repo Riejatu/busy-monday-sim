@@ -236,34 +236,15 @@ export const deDE = {
   },
   // Negative consequences. `incidents` is keyed promptId:choiceId; anything with
   // no entry falls back, so a newly risky answer is never left without a message.
+  // Feedback for a wrong decision. ONE message for every wrong answer, whatever it
+  // was - centralized deliberately, so there is one entry to write and translate.
   consequences: {
     dismiss: "Schließen und mit dem Tag weitermachen",
-    fallback: {
-      title: "Das ging schief",
-      body: "Diese Antwort hätte im Arbeitsalltag echten Schaden angerichtet.",
-      detail: "Kurz durchatmen, dann weiter mit dem Tag.",
-    },
-    incidents: {
-      "coworker-check-in:wifiPassword": {
-        title: "Du hast das Kennwort laut ausgesprochen",
-        body:
-          "Ein Kennwort, das über den Schreibtisch gesagt wird, haben ab sofort alle in Hörweite.",
-        detail:
-          "Niemand braucht dein Kennwort - keine Kollegin, nicht die IT. Verweise stattdessen auf den Service Desk.",
-      },
-      "messenger-invoice-phish-follow-up:clickLink": {
-        title: "Du hast den Link geöffnet",
-        body:
-          "Die Seite dahinter war dafür gebaut, die dort eingegebenen Anmeldedaten abzugreifen.",
-        detail:
-          "Der Name in der Nachricht war echt. Die Absenderadresse nicht, und das war der einzige Unterschied.",
-      },
-      "card-verification-toad-digits:readDigits": {
-        title: "Du hast die Kartendaten vorgelesen",
-        body: "Die vollständige Nummer und die Prüfziffer genügen, um mit der Karte zu bezahlen.",
-        detail:
-          "Ein Kartenanbieter hat deine Nummer längst. Dass du sie vorlesen sollst, ist genau das Warnsignal.",
-      },
+    message: {
+      title: "Das war die falsche Entscheidung",
+      body:
+        "An einem echten Arbeitstag hätte diese Entscheidung etwas Wertvolles an jemanden gegeben, der es nicht bekommen sollte.",
+      detail: "Hier ist nichts davon echt. Kurz durchatmen, dann weiter mit dem Tag.",
     },
   },
   chat: {

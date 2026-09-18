@@ -236,35 +236,15 @@ export const itIT = {
   },
   // Negative consequences. `incidents` is keyed promptId:choiceId; anything with
   // no entry falls back, so a newly risky answer is never left without a message.
+  // Feedback for a wrong decision. ONE message for every wrong answer, whatever it
+  // was - centralized deliberately, so there is one entry to write and translate.
   consequences: {
     dismiss: "Chiudi e riprendi la giornata",
-    fallback: {
-      title: "È andata male",
-      body: "Quella risposta avrebbe causato un danno reale al lavoro.",
-      detail: "Prenditi un momento, poi riprendi la giornata.",
-    },
-    incidents: {
-      "coworker-check-in:wifiPassword": {
-        title: "Hai detto la password ad alta voce",
-        body:
-          "Una password pronunciata sopra una scrivania è una password che ora conoscono tutti i vicini.",
-        detail:
-          "Nessuno ha bisogno della tua: né un collega né il reparto IT. Indirizzali all assistenza.",
-      },
-      "messenger-invoice-phish-follow-up:clickLink": {
-        title: "Hai aperto il link",
-        body:
-          "La pagina raggiunta era costruita per prendere le credenziali che vi avresti inserito.",
-        detail:
-          "Il nome sul messaggio era vero. L indirizzo da cui arrivava no, ed era l unica differenza.",
-      },
-      "card-verification-toad-digits:readDigits": {
-        title: "Hai dettato la carta",
-        body:
-          "Il numero completo e il codice di sicurezza sono tutto ciò che serve per spendere con quella carta.",
-        detail:
-          "Chi emette la carta ha già il tuo numero. Che ti venga chiesto di dettarlo è proprio il segnale.",
-      },
+    message: {
+      title: "Era la scelta sbagliata",
+      body:
+        "In una vera giornata di lavoro quella decisione avrebbe consegnato qualcosa di prezioso a chi non doveva averlo.",
+      detail: "Qui niente è reale. Prenditi un momento, poi riprendi la giornata.",
     },
   },
   chat: {

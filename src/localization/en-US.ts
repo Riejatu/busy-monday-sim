@@ -231,33 +231,15 @@ export const enUS = {
   },
   // Negative consequences. `incidents` is keyed promptId:choiceId; anything with
   // no entry falls back, so a newly risky answer is never left without a message.
+  // Feedback for a wrong decision. ONE message for every wrong answer, whatever it
+  // was - centralized deliberately, so there is one entry to write and translate.
   consequences: {
     dismiss: "Close and carry on with the day",
-    fallback: {
-      title: "That went wrong",
-      body: "That answer would have caused real harm at work.",
-      detail: "Take a moment, then carry on with the day.",
-    },
-    incidents: {
-      "coworker-check-in:wifiPassword": {
-        title: "You said the password out loud",
-        body: "A password spoken across a desk is a password anyone nearby now has.",
-        detail:
-          "Nobody needs yours - not a colleague, not IT. Point them at the service desk instead.",
-      },
-      "messenger-invoice-phish-follow-up:clickLink": {
-        title: "You opened the link",
-        body: "The page you landed on was built to take the credentials you typed into it.",
-        detail:
-          "The name on the message was real. The address it came from was not, and that was the only thing separating them.",
-      },
-      "card-verification-toad-digits:readDigits": {
-        title: "You read out the card",
-        body:
-          "The full number and the security code are everything needed to spend on that card.",
-        detail:
-          "A card company already has your number. Being asked to read it back is the tell.",
-      },
+    message: {
+      title: "That was the wrong call",
+      body:
+        "In a real workday, that decision would have handed something valuable to someone who should not have had it.",
+      detail: "Nothing here is real. Take a moment, then carry on with the day.",
     },
   },
   chat: {

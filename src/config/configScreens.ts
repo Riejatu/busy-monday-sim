@@ -47,7 +47,6 @@ interface FieldDefinition {
     | "unitLocalization"
     | "messengerCount"
     | "messengerGap"
-    | "consequenceToggle"
     | "consequenceStyle";
 }
 
@@ -99,18 +98,12 @@ const FIELDS: FieldDefinition[] = [
     control: "messengerGap"
   },
   {
-    key: "consequencesEnabled",
-    label: "Negative consequences",
-    help:
-      "Whether a risky answer draws a consequence. On or off for the whole simulation.",
-    control: "consequenceToggle"
-  },
-  {
     key: "consequenceStyle",
-    label: "Consequence style",
+    label: "Wrong-decision feedback",
     help:
-      "Which one is used. Exactly one at a time, so a day never mixes two visual " +
-      "languages for the same idea.",
+      "What a wrong decision draws. One setting for the whole simulation, so a day never " +
+      "mixes two visual languages for the same idea. None gives no message at the moment " +
+      "of decision - an individual threat can still play out its own consequences.",
     control: "consequenceStyle"
   },
   {
@@ -174,17 +167,6 @@ function renderControl(
       <select id="${id}" data-key="${field.key}" ${attributes}>
         <option value="true" ${localize ? "selected" : ""}>Match learner locale</option>
         <option value="false" ${localize ? "" : "selected"}>Always as configured</option>
-      </select>
-    `;
-  }
-
-  if (field.control === "consequenceToggle") {
-    const on = value === true || value === "true";
-
-    return `
-      <select id="${id}" data-key="${field.key}" ${attributes}>
-        <option value="true" ${on ? "selected" : ""}>On</option>
-        <option value="false" ${on ? "" : "selected"}>Off</option>
       </select>
     `;
   }
@@ -278,20 +260,19 @@ function renderSummary(effective: SimulationSettings): string {
         <div><dt>Desktop temperature</dt><dd>${escapeHtml(describeTemperature(effective))}</dd></div>
         <div><dt>Phishing coverage</dt><dd>${escapeHtml(describePhishingCoverage(effective))}</dd></div>
         <div><dt>Messenger</dt><dd>${effective.messengerConversations} conversations, ${effective.messengerGapMinutes} simulated min apart</dd></div>
-        <div><dt>Consequences</dt><dd>${escapeHtml(describeConsequences(effective))}</dd></div>
+        <div><dt>Wrong-decision feedback</dt><dd>${escapeHtml(describeConsequences(effective))}</dd></div>
       </dl>
     </div>
   `;
 }
 
 function describeConsequences(effective: SimulationSettings): string {
-  if (!effective.consequencesEnabled) {
-    return "off";
-  }
-
   const style = CONSEQUENCE_STYLES.find((entry) => entry.id === effective.consequenceStyle);
+  const label = style?.label ?? effective.consequenceStyle;
 
-  return `${style?.label ?? effective.consequenceStyle}, on every risky answer`;
+  return effective.consequenceStyle === "none"
+    ? "none - no message at the moment of decision"
+    : `${label}, on every wrong decision`;
 }
 
 /** Names the categories that are off, rather than only counting them. */
@@ -742,7 +723,7 @@ function coerceFieldValue(field: FieldDefinition, raw: string): unknown {
     return raw;
   }
 
-  if (field.control === "unitLocalization" || field.control === "consequenceToggle") {
+  if (field.control === "unitLocalization") {
     return raw === "true";
   }
 
@@ -916,10 +897,6 @@ export function renderAdminPage(root: HTMLElement, onChange: () => void): void {
               inherited = backend.localizeTemperatureUnit
                 ? "match learner locale"
                 : "as configured";
-            }
-
-            if (field.control === "consequenceToggle") {
-              inherited = backend.consequencesEnabled ? "on" : "off";
             }
 
             if (field.control === "consequenceStyle") {

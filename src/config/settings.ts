@@ -71,13 +71,10 @@ export interface SimulationSettings {
   /** Simulated minutes between one messenger conversation arriving and the next. */
   messengerGapMinutes: number;
   /**
-   * Whether a wrong answer draws a negative consequence. On or off for the whole
-   * simulation - there is no per-event version, because it is a process rather than content.
-   */
-  consequencesEnabled: boolean;
-  /**
-   * Which consequence style is in use. Exactly one at a time, so a day never mixes two
-   * visual languages for the same idea.
+   * What a wrong decision draws: nothing, or one of the feedback styles. One setting for
+   * the whole simulation - there is no per-event version, because it is a process rather
+   * than content, and "none" is a value here rather than a separate switch so an operator
+   * makes one decision instead of two that can disagree.
    */
   consequenceStyle: ConsequenceStyleId;
 }
@@ -112,7 +109,6 @@ export const BACKEND_DEFAULTS: SimulationSettings = {
   phishing: {},
   messengerConversations: MAX_MESSENGER_CONVERSATIONS,
   messengerGapMinutes: 45,
-  consequencesEnabled: true,
   consequenceStyle: "pageRip"
 };
 
@@ -304,15 +300,25 @@ export function sanitizeSettings(input: Partial<SimulationSettings>): Partial<Si
     output.messengerGapMinutes = messengerGap;
   }
 
-  if (typeof input.consequencesEnabled === "boolean") {
-    output.consequencesEnabled = input.consequencesEnabled;
-  }
-
   if (
     typeof input.consequenceStyle === "string" &&
     isConsequenceStyleId(input.consequenceStyle)
   ) {
     output.consequenceStyle = input.consequenceStyle;
+  }
+
+  /*
+   * Migration, and safe to delete once no saved layer predates the three-way setting.
+   *
+   * Feedback used to be a boolean beside the style. An operator who had switched it off
+   * would otherwise have that intent silently dropped by the sanitizer and end up with
+   * Page Rip back on, so a stored `false` is read as "none".
+   */
+  if (
+    output.consequenceStyle === undefined &&
+    (input as { consequencesEnabled?: unknown }).consequencesEnabled === false
+  ) {
+    output.consequenceStyle = "none";
   }
 
   if (typeof input.defaultLocale === "string" && isSupportedLocale(input.defaultLocale)) {

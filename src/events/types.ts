@@ -291,6 +291,13 @@ export interface ChoicePrompt {
    * simulation tearing the prompt down itself.
    */
   timeoutSeconds?: number;
+  /**
+   * Set by the engine, not by event authors: which event raised this prompt.
+   *
+   * It is what lets wrong-decision feedback wait for the whole scenario rather than firing
+   * on an intermediate stage - the answers of one event belong to one scenario.
+   */
+  sourceEventId?: string;
 }
 
 export interface ChoiceOutcome {
@@ -391,6 +398,16 @@ export interface DesktopBridge {
    * `apply` may be async.
    */
   askChoice: (prompt: ChoicePrompt) => Promise<ChoiceOutcome>;
+  /**
+   * Called by the engine when an event's `apply` has finished, however it finished.
+   *
+   * This is what marks the end of a scenario. Wrong-decision feedback is held back until
+   * then, so a multi-stage scenario is never interrupted on an intermediate stage - and a
+   * scenario added later gets that for free, without having to declare anything.
+   *
+   * Event authors never call this.
+   */
+  endScenario: (eventId: string) => void;
   /**
    * Delivers a message into the messenger. The window does not open by itself - the
    * message waits behind an unread badge until the learner goes to it. Once the

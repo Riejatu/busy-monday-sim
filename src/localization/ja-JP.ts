@@ -230,29 +230,14 @@ export const jaJP = {
   },
   // Negative consequences. `incidents` is keyed promptId:choiceId; anything with
   // no entry falls back, so a newly risky answer is never left without a message.
+  // Feedback for a wrong decision. ONE message for every wrong answer, whatever it
+  // was - centralized deliberately, so there is one entry to write and translate.
   consequences: {
     dismiss: "閉じて一日を続ける",
-    fallback: {
-      title: "対応を誤りました",
-      body: "その回答は、実際の職場では本当の被害につながっていました。",
-      detail: "少し落ち着いてから、一日を続けてください。",
-    },
-    incidents: {
-      "coworker-check-in:wifiPassword": {
-        title: "パスワードを声に出しました",
-        body: "机越しに口にしたパスワードは、その場にいた全員が知ったパスワードです。",
-        detail: "あなたのパスワードを必要とする人はいません。同僚でも情報システム部門でもです。サービスデスクを案内してください。",
-      },
-      "messenger-invoice-phish-follow-up:clickLink": {
-        title: "リンクを開きました",
-        body: "開いたページは、そこに入力された資格情報を盗むために作られていました。",
-        detail: "メッセージの名前は本物でした。差出人のアドレスは違い、その一点だけが見分ける手がかりでした。",
-      },
-      "card-verification-toad-digits:readDigits": {
-        title: "カード番号を読み上げました",
-        body: "完全な番号とセキュリティコードがあれば、そのカードで支払いができます。",
-        detail: "カード会社はあなたの番号をすでに持っています。読み上げを求めること自体が手がかりです。",
-      },
+    message: {
+      title: "その判断は誤りでした",
+      body: "実際の職場であれば、その判断は本来渡してはいけない相手に大切なものを渡していました。",
+      detail: "ここでのことはすべて演習です。少し落ち着いてから、一日を続けてください。",
     },
   },
   chat: {

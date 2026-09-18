@@ -1,42 +1,72 @@
-// Negative consequences: what the simulation does when the learner gets something wrong.
+// Feedback for a wrong decision: what the simulation says when the learner gets something
+// wrong, and how it says it.
 //
-// A generic process, not a per-event one. Any risky answer can drive it, and the styles are
-// interchangeable - "Page Rip" is the first, and adding another means one entry in
-// CONSEQUENCE_STYLES plus its markup and CSS.
+// A generic process, not a per-event one. It keys off a choice's own `risk`, so any prompt
+// in any event draws feedback for a wrong answer without the event knowing this exists.
 //
-// Three rules from the brief, worth keeping in view:
+// Three rules worth keeping in view:
 //
-//   * ONE style per simulation. Operators pick from a list rather than switching several
-//     on, so a day never mixes two visual languages for the same idea.
+//   * ONE setting, three options. "None", "Page Rip" and "MM Style" are values of the same
+//     operator control, so a day never mixes two visual languages for the same idea, and
+//     turning feedback off is the same decision as choosing between the styles.
+//   * ONE message for every wrong decision. Centralized deliberately: whatever the learner
+//     got wrong, the words are the same, so the text is a single entry in the dictionaries
+//     rather than a growing table keyed by incident.
 //   * Time stops until the learner dismisses it. Not a toast that scrolls past - a full
 //     stop, because the point is that a bad decision interrupts the day.
-//   * The words vary by incident. The style is the container; the text is content, keyed by
-//     incident with a generic fallback for anything not yet written.
+//
+// "None" means no text at time of decision. It does NOT mean nothing happens: an individual
+// threat can still play out its own consequences in the simulation - a call that connects, a
+// coaching notification - it just does not put a message on screen.
 
-import { hasMessage, t } from "./localization/i18n";
+import { t } from "./localization/i18n";
 
 /**
- * The styles an operator can choose between. Operator-facing text is English here, the way
- * event names are: these appear only on /backend and /admin.
+ * What an operator can choose between. Operator-facing text is English here, the way event
+ * names are: these appear only on /backend and /admin.
  */
 export const CONSEQUENCE_STYLES = [
+  {
+    id: "none",
+    label: "None",
+    description:
+      "No feedback at the moment of decision. An individual threat can still play out its " +
+      "own consequences in the simulation, but no message is put on screen and the day is " +
+      "not stopped."
+  },
   {
     id: "pageRip",
     label: "Page Rip",
     description:
       "A white tear opens from the top centre of the screen and runs to the bottom, " +
-      "widening to about a third of the page with the top wider than the foot. The inside " +
-      "is black, and the consequence is written in it. A dismiss control fades in a few " +
-      "seconds later; until it is used, the day is stopped."
+      "widening to about 39% of the page with the top wider than the foot. The inside is " +
+      "black with nothing drawn across the top or bottom, and the message is written in it."
+  },
+  {
+    id: "mmStyle",
+    label: "MM Style",
+    description:
+      "A black bar with white top and bottom borders sweeps in from the left and spans the " +
+      "full width of the window, half the page height and centred vertically. The message " +
+      "reads the same as Page Rip's."
   }
 ] as const;
 
 export type ConsequenceStyleId = (typeof CONSEQUENCE_STYLES)[number]["id"];
 
+/** The styles that actually draw something. Everything except "none". */
+export type VisibleConsequenceStyleId = Exclude<ConsequenceStyleId, "none">;
+
 export const CONSEQUENCE_STYLE_IDS = CONSEQUENCE_STYLES.map((style) => style.id);
 
 export function isConsequenceStyleId(value: string): value is ConsequenceStyleId {
   return (CONSEQUENCE_STYLE_IDS as readonly string[]).includes(value);
+}
+
+export function isVisibleConsequenceStyle(
+  style: ConsequenceStyleId
+): style is VisibleConsequenceStyleId {
+  return style !== "none";
 }
 
 /** Real seconds the learner gets to read before the way out appears. */
@@ -45,36 +75,24 @@ const DISMISS_DELAY_SECONDS = 2.6;
 /** Matches the CSS fade so the element is gone only once it is invisible. */
 const FADE_OUT_MS = 460;
 
-export interface ConsequenceContent {
-  /**
-   * Stable identifier for what went wrong, as `promptId:choiceId`. Used to look up the
-   * wording and to record the incident in the behaviour log.
-   */
-  incidentId: string;
+export interface WrongDecisionMessage {
   title: string;
   lines: string[];
 }
 
 /**
- * The wording for an incident, falling back to a generic message.
+ * The one message shown for every wrong decision, whatever it was.
  *
- * This is the placeholder the brief asks for: authoring text for a new incident means
- * adding `consequences.incidents.<promptId>:<choiceId>` to the dictionaries and nothing
- * else. Until that exists the generic copy is used, so a newly risky answer is never
- * silently consequence-free.
+ * Centralized on purpose. An earlier draft keyed the wording off `promptId:choiceId` with a
+ * generic fallback; the decision since is that all wrong answers read the same, so there is
+ * one entry to write and one to translate. If per-incident wording is ever wanted again,
+ * this function is the only place that has to change.
  */
-export function resolveConsequenceContent(incidentId: string): ConsequenceContent {
-  const base = `consequences.incidents.${incidentId}`;
-  const authored = hasMessage(`${base}.title`);
-  const prefix = authored ? base : "consequences.fallback";
-
-  const lines = [t(`${prefix}.body`)];
-
-  if (hasMessage(`${prefix}.detail`)) {
-    lines.push(t(`${prefix}.detail`));
-  }
-
-  return { incidentId, title: t(`${prefix}.title`), lines };
+export function getWrongDecisionMessage(): WrongDecisionMessage {
+  return {
+    title: t("consequences.message.title"),
+    lines: [t("consequences.message.body"), t("consequences.message.detail")]
+  };
 }
 
 let openConsequence: HTMLElement | null = null;
@@ -84,14 +102,17 @@ export function isConsequenceOpen(): boolean {
 }
 
 /**
- * Shows the consequence and resolves once the learner dismisses it.
+ * Shows the feedback and resolves once the learner dismisses it.
  *
  * Awaited by the caller, which is what makes "time stops until they continue" true: the
  * choice that caused it does not resolve, and the clock stays paused, until this settles.
+ *
+ * Takes a visible style only - "none" is the caller's decision not to call this at all,
+ * which the type makes impossible to get wrong.
  */
 export function showConsequence(
-  style: ConsequenceStyleId,
-  content: ConsequenceContent
+  style: VisibleConsequenceStyleId,
+  incidentId: string
 ): Promise<void> {
   dismissConsequence();
 
@@ -99,11 +120,13 @@ export function showConsequence(
     const overlay = document.createElement("div");
 
     overlay.className = `consequence consequence-${style}`;
-    overlay.dataset.incident = content.incidentId;
+    // Not used for the wording, which is centralized - kept so the element on screen can be
+    // traced back to the decision that caused it.
+    overlay.dataset.incident = incidentId;
     overlay.setAttribute("role", "alertdialog");
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-labelledby", "consequence-title");
-    overlay.innerHTML = buildMarkup(style, content);
+    overlay.innerHTML = buildMarkup(style, getWrongDecisionMessage());
 
     document.body.appendChild(overlay);
     openConsequence = overlay;
@@ -120,7 +143,7 @@ export function showConsequence(
       document.removeEventListener("keydown", onKeyDown, true);
 
       // Removed only once it has actually faded, so the day does not resume behind a
-      // still-visible tear.
+      // still-visible overlay.
       window.setTimeout(() => {
         overlay.remove();
 
@@ -164,18 +187,81 @@ export function dismissConsequence(): void {
 }
 
 /* ------------------------------------------------------------------ *
+ * Markup
+ * ------------------------------------------------------------------ */
+
+/**
+ * Every style is a surface plus the same message on top of it.
+ *
+ * The message is a SIBLING of the animated surface, never a child: both styles animate with
+ * a one-axis scale, and a parent being scaled that way squashes whatever it contains.
+ */
+function buildMarkup(style: VisibleConsequenceStyleId, message: WrongDecisionMessage): string {
+  return `
+    ${buildSurface(style)}
+
+    <div class="consequence-panel">
+      <!--
+        The message is its own block so the dismiss control can be positioned against it.
+        Anchored to the panel instead, it floated hundreds of pixels above the words.
+      -->
+      <div class="consequence-message">
+        <button
+          type="button"
+          class="consequence-dismiss"
+          aria-label="${escapeHtml(t("consequences.dismiss"))}"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="12" r="10.6" />
+            <path d="M8.4 8.4 15.6 15.6 M15.6 8.4 8.4 15.6" />
+          </svg>
+        </button>
+
+        <h2 id="consequence-title">${escapeHtml(message.title)}</h2>
+        ${message.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function buildSurface(style: VisibleConsequenceStyleId): string {
+  if (style === "mmStyle") {
+    // A plain block: the borders and the sweep are entirely CSS, so there is nothing to
+    // build here the way the torn edge has to be.
+    return `<div class="consequence-surface" aria-hidden="true"></div>`;
+  }
+
+  const rip = buildRipGeometry();
+
+  return `
+    <div class="consequence-surface" aria-hidden="true">
+      <svg class="rip-edge" viewBox="0 0 100 1000" preserveAspectRatio="none">
+        <path class="rip-fill" d="${rip.fill}" />
+        <path class="rip-side" d="${rip.left}" vector-effect="non-scaling-stroke" />
+        <path class="rip-side" d="${rip.right}" vector-effect="non-scaling-stroke" />
+      </svg>
+    </div>
+  `;
+}
+
+/* ------------------------------------------------------------------ *
  * Page Rip
  * ------------------------------------------------------------------ */
 
 /**
- * The torn edge, as an SVG polygon in a 100x1000 viewBox stretched to the element.
+ * The tear, as three paths in a 100x1000 viewBox stretched to the element.
+ *
+ * Three rather than one because the white edge belongs on the SIDES ONLY. A single closed
+ * path with a stroke draws that stroke all the way round, which put a white line across the
+ * top and the bottom of the screen; the fill is therefore closed and unstroked, and the two
+ * torn edges are open polylines that never join across the ends.
  *
  * Built rather than written out so the shape is legible and tunable: the taper and the
  * raggedness are parameters, not a wall of coordinates. The offsets are a fixed cycle
  * rather than random, so the tear looks the same every time - a screenshot or a bug report
  * has to still describe the thing being looked at.
  */
-function buildRipPath(): string {
+function buildRipGeometry(): { fill: string; left: string; right: string } {
   const HEIGHT = 1000;
   const CENTRE = 50;
   /** Half-widths: the top is wider than the foot, as specified. */
@@ -199,41 +285,14 @@ function buildRipPath(): string {
     right.push(`${(CENTRE + half - jag * 0.8).toFixed(1)},${yAt(index).toFixed(0)}`);
   });
 
-  return `M ${left.join(" L ")} L ${right.reverse().join(" L ")} Z`;
-}
-
-function buildMarkup(style: ConsequenceStyleId, content: ConsequenceContent): string {
-  void style;
-
-  return `
-    <div class="rip-tear" aria-hidden="true">
-      <svg class="rip-edge" viewBox="0 0 100 1000" preserveAspectRatio="none">
-        <path d="${buildRipPath()}" vector-effect="non-scaling-stroke" />
-      </svg>
-    </div>
-
-    <div class="rip-panel">
-      <!--
-        The message is its own block so the dismiss control can be positioned against it.
-        Anchored to the panel instead, it floated hundreds of pixels above the words.
-      -->
-      <div class="rip-message">
-        <button
-          type="button"
-          class="consequence-dismiss"
-          aria-label="${escapeHtml(t("consequences.dismiss"))}"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <circle cx="12" cy="12" r="10.6" />
-            <path d="M8.4 8.4 15.6 15.6 M15.6 8.4 8.4 15.6" />
-          </svg>
-        </button>
-
-        <h2 id="consequence-title">${escapeHtml(content.title)}</h2>
-        ${content.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}
-      </div>
-    </div>
-  `;
+  return {
+    // Closed, so the black reaches the top and bottom edges of the screen with nothing
+    // drawn across them.
+    fill: `M ${left.join(" L ")} L ${[...right].reverse().join(" L ")} Z`,
+    // Open: no Z, so neither end is capped.
+    left: `M ${left.join(" L ")}`,
+    right: `M ${right.join(" L ")}`
+  };
 }
 
 /** Local copy: this module must not depend on the screen-rendering module. */

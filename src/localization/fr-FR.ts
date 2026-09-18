@@ -236,33 +236,15 @@ export const frFR = {
   },
   // Negative consequences. `incidents` is keyed promptId:choiceId; anything with
   // no entry falls back, so a newly risky answer is never left without a message.
+  // Feedback for a wrong decision. ONE message for every wrong answer, whatever it
+  // was - centralized deliberately, so there is one entry to write and translate.
   consequences: {
     dismiss: "Fermer et reprendre la journée",
-    fallback: {
-      title: "Mauvais choix",
-      body: "Cette réponse aurait causé un réel préjudice au travail.",
-      detail: "Prends un instant, puis reprends ta journée.",
-    },
-    incidents: {
-      "coworker-check-in:wifiPassword": {
-        title: "Tu as dit le mot de passe à voix haute",
-        body:
-          "Un mot de passe prononcé au-dessus d un bureau est un mot de passe que tous les voisins connaissent désormais.",
-        detail:
-          "Personne n a besoin du tien, ni un collègue, ni le service informatique. Renvoie-les vers l assistance.",
-      },
-      "messenger-invoice-phish-follow-up:clickLink": {
-        title: "Tu as ouvert le lien",
-        body: "La page atteinte était conçue pour récupérer les identifiants que tu y saisis.",
-        detail:
-          "Le nom sur le message était réel. L adresse d envoi ne l était pas, et c était la seule différence.",
-      },
-      "card-verification-toad-digits:readDigits": {
-        title: "Tu as dicté la carte",
-        body: "Le numéro complet et le code de sécurité suffisent à dépenser avec cette carte.",
-        detail:
-          "Un émetteur de carte possède déjà ton numéro. Qu on te demande de le dicter, c est justement le signe.",
-      },
+    message: {
+      title: "Mauvaise décision",
+      body:
+        "Dans une vraie journée de travail, ce choix aurait confié quelque chose de précieux à quelqu'un qui n'aurait pas dû l'obtenir.",
+      detail: "Rien ici n'est réel. Prends un instant, puis reprends ta journée.",
     },
   },
   chat: {

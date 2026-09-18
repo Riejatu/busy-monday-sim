@@ -60,24 +60,6 @@ export function getAvailableLocales(): LocaleCode[] {
  * Values are substituted verbatim. Anything interpolated into HTML still has to be
  * escaped at the call site.
  */
-/**
- * Whether a message exists, without asking for it.
- *
- * `t()` warns on a miss, which is the right default - a missing string is nearly always a
- * bug. But a caller that deliberately probes for optional text (per-incident consequence
- * copy, say, with a generic fallback) would fill the console with warnings for keys nobody
- * has authored yet, and those warnings are how the drivers detect real misses.
- */
-export function hasMessage(path: string): boolean {
-  const dictionary = translations[currentLocale] as TranslationDictionary;
-
-  if (typeof getNestedValue(dictionary, path) === "string") {
-    return true;
-  }
-
-  return typeof getNestedValue(translations["en-US"] as TranslationDictionary, path) === "string";
-}
-
 export function t(path: string, params?: Record<string, string>): string {
   const dictionary = translations[currentLocale] as TranslationDictionary;
   const fallbackDictionary = translations["en-US"] as TranslationDictionary;

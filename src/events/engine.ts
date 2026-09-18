@@ -369,7 +369,10 @@ export function createEventEngine(options: EventEngineOptions): EventEngine {
     // Scoped bridge: notifications carry their source so withdrawal can target them.
     const scopedDesktop: DesktopBridge = {
       ...desktop,
-      notify: (notification) => desktop.notify({ ...notification, sourceEventId: eventId })
+      notify: (notification) => desktop.notify({ ...notification, sourceEventId: eventId }),
+      // Stamped so an answer can be attributed to the scenario it belongs to, which is how
+      // feedback knows to wait for the scenario's last stage.
+      askChoice: (prompt) => desktop.askChoice({ ...prompt, sourceEventId: eventId })
     };
 
     const context: SimEventContext = {
@@ -392,13 +395,20 @@ export function createEventEngine(options: EventEngineOptions): EventEngine {
       const result = definition.apply(context);
 
       if (result instanceof Promise) {
-        result.catch((error) => {
-          console.error(`Event "${eventId}" failed while running:`, error);
-        });
+        result
+          .catch((error) => {
+            console.error(`Event "${eventId}" failed while running:`, error);
+          })
+          // However it ended, the scenario is over - which is when any wrong-decision
+          // feedback it earned is allowed to appear.
+          .finally(() => desktop.endScenario(eventId));
+      } else {
+        desktop.endScenario(eventId);
       }
     } catch (error) {
       // One misbehaving event must not take the rest of the day down.
       console.error(`Event "${eventId}" failed to apply:`, error);
+      desktop.endScenario(eventId);
     }
 
     queueFollowUps(eventId, atSimMinutes);

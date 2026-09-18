@@ -1,15 +1,17 @@
 /*
- * Negative consequences.
+ * Feedback for a wrong decision.
  *
- * The overlay is above everything the desktop can put on screen - a consequence is not
- * something to be layered under a window or a toast, and the day is stopped behind it.
+ * Two styles, one message. Everything shared lives at the top; each style then supplies its
+ * own surface geometry and its own way of arriving. The overlay is above everything the
+ * desktop can put on screen - this is not something to be layered under a window or a
+ * toast, and the day is stopped behind it.
  */
 
 .consequence {
   position: fixed;
   inset: 0;
   z-index: 400;
-  /* No dimming of the desktop: the tear itself is the interruption. */
+  /* No dimming of the desktop: the surface itself is the interruption. */
   pointer-events: none;
   opacity: 1;
   transition: opacity 460ms ease;
@@ -19,98 +21,40 @@
   opacity: 0;
 }
 
-/* ---------- Page Rip ---------- */
+/* ---------- Shared message ---------- */
 
 /*
- * The tear: a white-edged, black-filled wedge running the full height, centred, widening to
- * about a third of the page.
- *
- * A minimum width as well as the 30vw the brief asks for - at a narrow viewport 30% of the
- * page cannot hold a readable sentence, and the text is the whole point of the thing.
+ * The text is a sibling of the animated surface, never a child: both styles animate with a
+ * one-axis scale, and a parent scaled that way squashes whatever it contains.
  */
-.consequence-pageRip .rip-tear {
+.consequence-panel {
   position: absolute;
-  top: 0;
-  left: 50%;
-  width: max(30vw, 360px);
-  height: 100%;
-  transform-origin: top center;
-  /*
-   * Two phases, matching the brief: it runs down the page first, then opens. Starting at a
-   * hair of width rather than zero is what makes the first phase read as a single white
-   * line that then breaks apart into two edges.
-   */
-  animation: rip-open 1250ms cubic-bezier(0.22, 0.9, 0.25, 1) forwards;
-}
-
-@keyframes rip-open {
-  0% {
-    transform: translateX(-50%) scaleX(0.02) scaleY(0);
-  }
-
-  38% {
-    transform: translateX(-50%) scaleX(0.045) scaleY(1);
-  }
-
-  100% {
-    transform: translateX(-50%) scaleX(1) scaleY(1);
-  }
-}
-
-.consequence-pageRip .rip-edge {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/*
- * Black interior, white torn edge. The stroke does not scale with the element, so the edge
- * stays an even weight while the tear opens rather than thinning out to nothing.
- */
-.consequence-pageRip .rip-edge path {
-  fill: #000;
-  stroke: #fff;
-  stroke-width: 2.5;
-  stroke-linejoin: round;
-}
-
-/*
- * The text sits in its own layer rather than inside the animated element: a parent being
- * scaled on one axis would squash whatever it contains, and this has to stay readable.
- */
-.consequence-pageRip .rip-panel {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(max(30vw, 360px) - 96px, 460px);
-  height: 100%;
   display: grid;
   align-content: center;
+  justify-items: center;
   box-sizing: border-box;
-  padding: 0 12px;
   color: #fff;
   text-align: center;
   pointer-events: auto;
-  /* Held back until the tear has finished opening. */
+  /* Held back until the surface has finished arriving; each style sets its own delay. */
   opacity: 0;
-  animation: rip-text-in 520ms ease 1150ms forwards;
+  animation: consequence-text-in 520ms ease forwards;
 }
 
-/* The words, and the frame the dismiss control is positioned against. */
-.consequence-pageRip .rip-message {
-  position: relative;
-  display: grid;
-  gap: 12px;
-}
-
-@keyframes rip-text-in {
+@keyframes consequence-text-in {
   to {
     opacity: 1;
   }
 }
 
-.consequence-pageRip .rip-panel h2 {
+/* The words, and the frame the dismiss control is positioned against. */
+.consequence-message {
+  position: relative;
+  display: grid;
+  gap: 12px;
+}
+
+.consequence-message h2 {
   margin: 0;
   font-size: 19px;
   font-weight: 700;
@@ -118,7 +62,7 @@
   letter-spacing: 0.2px;
 }
 
-.consequence-pageRip .rip-panel p {
+.consequence-message p {
   margin: 0;
   color: rgba(255, 255, 255, 0.86);
   font-size: 14px;
@@ -183,13 +127,140 @@
   outline-offset: 3px;
 }
 
+/* ---------- Page Rip ---------- */
+
+/*
+ * A white-edged, black-filled wedge running the full height, centred, widening to about a
+ * third of the page.
+ *
+ * A minimum width as well as the 39vw asked for - at a narrow viewport a proportion of the
+ * page cannot hold a readable sentence, and the text is the whole point of the thing.
+ */
+.consequence-pageRip .consequence-surface {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: max(39vw, 468px);
+  height: 100%;
+  transform-origin: top center;
+  /*
+   * Two phases: it runs down the page first, then opens. Starting at a hair of width rather
+   * than zero is what makes the first phase read as a single white line that then breaks
+   * apart into two edges.
+   */
+  animation: rip-open 1250ms cubic-bezier(0.22, 0.9, 0.25, 1) forwards;
+}
+
+@keyframes rip-open {
+  0% {
+    transform: translateX(-50%) scaleX(0.02) scaleY(0);
+  }
+
+  38% {
+    transform: translateX(-50%) scaleX(0.045) scaleY(1);
+  }
+
+  100% {
+    transform: translateX(-50%) scaleX(1) scaleY(1);
+  }
+}
+
+.consequence-pageRip .rip-edge {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * Black interior, and nothing drawn across the top or bottom: the fill is unstroked so the
+ * black runs to the screen edges cleanly.
+ */
+.consequence-pageRip .rip-fill {
+  fill: #000;
+  stroke: none;
+}
+
+/*
+ * The two torn edges, sides only. The stroke does not scale with the element, so an edge
+ * stays an even weight while the tear opens rather than thinning out to nothing.
+ */
+.consequence-pageRip .rip-side {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+
+.consequence-pageRip .consequence-panel {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(max(39vw, 468px) - 96px, 460px);
+  height: 100%;
+  padding: 0 12px;
+  animation-delay: 1150ms;
+}
+
+/* ---------- MM Style ---------- */
+
+/*
+ * A black bar with white top and bottom borders, sweeping in from the left across the full
+ * width of the window: half the page height, centred vertically.
+ *
+ * Borders rather than a drawn edge, because the shape is a rectangle. They are horizontal,
+ * so the one-axis scale that sweeps the bar in does not change their weight.
+ */
+.consequence-mmStyle .consequence-surface {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 50vh;
+  box-sizing: border-box;
+  background: #000;
+  /* Three times the original weight, as asked. box-sizing keeps the bar half the page
+     height rather than growing it. */
+  border-top: 9px solid #fff;
+  border-bottom: 9px solid #fff;
+  transform-origin: left center;
+  animation: mm-sweep 780ms cubic-bezier(0.2, 0.85, 0.25, 1) forwards;
+}
+
+@keyframes mm-sweep {
+  from {
+    transform: translateY(-50%) scaleX(0);
+  }
+
+  to {
+    transform: translateY(-50%) scaleX(1);
+  }
+}
+
+.consequence-mmStyle .consequence-panel {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 50vh;
+  padding: 0 24px;
+  animation-delay: 700ms;
+}
+
+/*
+ * Held to a readable measure. The bar is as wide as the window, and a sentence run across
+ * 1600px is a sentence nobody finishes.
+ */
+.consequence-mmStyle .consequence-message {
+  max-width: 620px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   /*
-   * The tear is the point, so it still appears - but it arrives rather than performing,
+   * The surface is the point, so it still appears - but it arrives rather than performing,
    * and the text and the way out come with it.
    */
-  .consequence-pageRip .rip-tear,
-  .consequence-pageRip .rip-panel {
+  .consequence .consequence-surface,
+  .consequence .consequence-panel {
     animation-duration: 1ms;
     animation-delay: 0ms;
   }

@@ -62,7 +62,7 @@ import { renderAdminPage, renderBackendPage } from "./config/configScreens";
 import { withBase } from "./assetPath";
 import {
   isConsequenceOpen,
-  resolveConsequenceContent,
+  isVisibleConsequenceStyle,
   showConsequence
 } from "./consequences";
 
@@ -76,6 +76,7 @@ import type {
   DesktopNotification,
   InjectedMessage,
   ChoiceOutcome,
+  ChoicePrompt,
   LearnerAction,
   NotificationSource,
   PhoneCall,
@@ -2642,6 +2643,20 @@ function createDesktopBridge(): DesktopBridge {
       }
     },
 
+    endScenario: (eventId) => {
+      const incidentId = pendingWrongDecisions.get(eventId);
+
+      if (incidentId === undefined) {
+        return;
+      }
+
+      pendingWrongDecisions.delete(eventId);
+
+      // Not awaited: the engine cannot block on the learner, and it does not need to - the
+      // feedback stops the clock itself for as long as it is up.
+      void showWrongDecisionFeedback(incidentId);
+    },
+
     resolveChatThread,
 
     openChat: (threadId) => openChatThread(threadId),
@@ -2659,16 +2674,7 @@ function createDesktopBridge(): DesktopBridge {
     askChoice: async (prompt) => {
       // No accent passed: the stylesheet already falls back to --brand-primary, so a
       // prompt picks up the company's colour unless the event overrides it explicitly.
-      const outcome = await withChoiceOpen(
-        () => openChoicePrompt(prompt),
-        (settled) => {
-          // Claims the pause while the prompt still holds it, so releasing it below cannot
-          // let the day run before the consequence is up.
-          if (config.effective.consequencesEnabled && settled.choice?.risk === "risky") {
-            consequencePending = true;
-          }
-        }
-      );
+      const outcome = await withChoiceOpen(() => openChoicePrompt(prompt));
 
       // Answers are behaviour: log the choice with its risk so scoring can use it, and
       // let triggers react to a specific answer via `promptId:choiceId`.
@@ -2686,9 +2692,9 @@ function createDesktopBridge(): DesktopBridge {
         elapsedMs: outcome.elapsedMs
       });
 
-      // Awaited, which is what makes "time stops until they continue" true: the event that
-      // asked does not carry on until the learner has dealt with the consequence.
-      await runConsequenceFor(prompt.id, outcome);
+      // Noted, not shown: the feedback waits for the scenario's last stage. The scenario
+      // therefore carries on normally from here, and is not interrupted mid-flow.
+      noteWrongDecision(prompt, outcome);
 
       return outcome;
     }
@@ -2696,38 +2702,64 @@ function createDesktopBridge(): DesktopBridge {
 }
 
 /**
- * Shows the configured consequence for a risky answer, and waits for the learner to
- * dismiss it.
+ * Wrong decisions waiting for their scenario to finish, keyed by the event that owns them.
  *
- * Generic on purpose: it keys off the choice's own `risk`, so any prompt in any event gets
- * a consequence for a wrong answer without the event knowing this exists. That was the
- * brief - a process, not per-event content.
+ * Feedback is held back to the LAST stage of a scenario rather than fired on the answer
+ * that earned it. A multi-stage scenario would otherwise be interrupted partway through and
+ * then carry on playing out the bad outcome anyway - and in the T.O.A.D. it could interrupt
+ * twice in one scenario.
  *
- * Nothing happens for a safe or neutral answer, and nothing happens when an operator has
- * switched consequences off.
+ * Deferring structurally, off the engine's "this event has finished" signal, rather than by
+ * a flag each prompt declares: a scenario added later gets the behaviour for free instead of
+ * depending on its author remembering to mark intermediate stages.
  */
-async function runConsequenceFor(promptId: string, outcome: ChoiceOutcome): Promise<void> {
-  if (!config.effective.consequencesEnabled || outcome.choice?.risk !== "risky") {
+const pendingWrongDecisions = new Map<string, string>();
+
+/**
+ * Notes a risky answer against its scenario, to be shown when the scenario ends.
+ *
+ * Generic on purpose: it keys off the choice's own `risk`, so any prompt in any event earns
+ * feedback for a wrong answer without the event knowing this exists.
+ *
+ * Nothing is noted for a safe or neutral answer, or when an operator has set feedback to
+ * None. Where several stages were answered badly the most recent one is kept - the wording
+ * is centralized and identical either way, so this only decides what the log records.
+ */
+function noteWrongDecision(prompt: ChoicePrompt, outcome: ChoiceOutcome): void {
+  if (
+    !isVisibleConsequenceStyle(config.effective.consequenceStyle) ||
+    outcome.choice?.risk !== "risky"
+  ) {
     return;
   }
 
-  const incidentId = `${promptId}:${outcome.choiceId}`;
+  const incidentId = `${prompt.id}:${outcome.choiceId}`;
+
+  // No owning event means nothing will ever signal the end of a scenario, so show it now
+  // rather than never. Every prompt the engine raises is stamped; this is the safety net.
+  if (!prompt.sourceEventId) {
+    void showWrongDecisionFeedback(incidentId);
+    return;
+  }
+
+  pendingWrongDecisions.set(prompt.sourceEventId, incidentId);
+}
+
+/** Shows the feedback and waits for the learner to dismiss it, with the day stopped. */
+async function showWrongDecisionFeedback(incidentId: string): Promise<void> {
+  const style = config.effective.consequenceStyle;
+
+  if (!isVisibleConsequenceStyle(style)) {
+    return;
+  }
 
   consequencePending = true;
-  // Keeps the day stopped across the handover from the prompt to the consequence, with no
-  // window in between where the clock could tick.
   syncTimePause();
 
-  record("learnerAction", "consequenceShown", simMinutes, {
-    incidentId,
-    style: config.effective.consequenceStyle
-  });
+  record("learnerAction", "consequenceShown", simMinutes, { incidentId, style });
 
   try {
-    await showConsequence(
-      config.effective.consequenceStyle,
-      resolveConsequenceContent(incidentId)
-    );
+    await showConsequence(style, incidentId);
   } finally {
     consequencePending = false;
     syncTimePause();
@@ -2740,7 +2772,7 @@ async function runConsequenceFor(promptId: string, outcome: ChoiceOutcome): Prom
  * Raises the `choiceOpen` state for as long as the prompt is up, so triggers that
  * declare `pauseWhile: "choiceOpen"` hold off rather than talking over it.
  */
-async function withChoiceOpen<T>(open: () => Promise<T>, onSettled?: (value: T) => void): Promise<T> {
+async function withChoiceOpen<T>(open: () => Promise<T>): Promise<T> {
   closeContextMenu();
 
   // All time stops while the learner is deciding: the simulated day, every trigger
@@ -2755,13 +2787,7 @@ async function withChoiceOpen<T>(open: () => Promise<T>, onSettled?: (value: T) 
   syncTimePause();
 
   try {
-    const value = await open();
-
-    // Called before the pause is released, so a consequence can claim it and the clock
-    // never runs for the moment between the prompt closing and the tear opening.
-    onSettled?.(value);
-
-    return value;
+    return await open();
   } finally {
     choicePending = false;
     applyChoicePendingStacking();
